@@ -74,6 +74,23 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
         ),
       ),
+    bottomNavigationBar: BottomNavigationBar(
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.calendar_today),
+          label: 'ホーム',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.folder),
+          label: '共有する',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.search),
+          label: '予定一覧',
+        ),
+      ],
+    ),
     );
   }
 }
+    
