@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'event.dart';
+import 'table_calendar_event_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ja_JP', null);
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -21,76 +25,88 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const CalendarPage(),
+      home: const TableCalendarSample(),
     );
   }
 }
 
-class CalendarPage extends StatefulWidget {
-  const CalendarPage({super.key});
+class TableCalendarSample extends HookConsumerWidget {
+  const TableCalendarSample({super.key});
 
   @override
-  State<CalendarPage> createState() => _CalendarPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDay = useState(DateTime.now());
+    final focusedDay = useState(DateTime.now());
+    final events = ref.watch(
+      tableCalendarEventControllerProvider,
+    ); // イベントのリストを取得
 
-class _CalendarPageState extends State<CalendarPage> {
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('カレンダーさん'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+      appBar: AppBar(title: const Text('カレンダー')),
+      body: TableCalendar<Event>(
+        locale: 'ja_JP',
+        firstDay: DateTime.utc(2000, 1, 1),
+        lastDay: DateTime.utc(2100, 12, 31),
+        focusedDay: focusedDay.value,
+        selectedDayPredicate: (day) => isSameDay(selectedDay.value, day),
+        onDaySelected: (selected, focused) {
+          selectedDay.value = selected;
+          focusedDay.value = focused;
+        },
+        onDayLongPressed: (selected, focused) {
+          showAddEventDialog(context, selectedDay.value, ref);
+        },
+        eventLoader: (date) {
+          final selectedEventList = <Event>[];
+          for (var event in events) {
+            if (isSameDay(event.dateTime, date)) {
+              selectedEventList.add(event);
+            }
+          }
+          return selectedEventList;
+        },
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: TableCalendar(
-          locale: 'ja_JP',
-          firstDay: DateTime.utc(2000, 1, 1),
-          lastDay: DateTime.utc(2100, 12, 31),
-          focusedDay: _focusedDay,
-          selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-          onDaySelected: (selectedDay, focusedDay) {
-            setState(() {
-              _selectedDay = selectedDay;
-              _focusedDay = focusedDay;
-            });
-          },
-          calendarStyle: CalendarStyle(
-            selectedDecoration: BoxDecoration(
-              color: const Color.fromARGB(255, 58, 93, 183),
-              shape: BoxShape.circle,
-            ),
-            todayDecoration: BoxDecoration(
-              color: Colors.orangeAccent,
-              shape: BoxShape.circle,
-            ),
-          ),
-          headerStyle: HeaderStyle(
-            formatButtonVisible: false,
-            titleCentered: true,
-          ),
+    );
+  }
+
+  Future<void> showAddEventDialog(
+    BuildContext context,
+    DateTime selectedDay,
+    WidgetRef ref,
+  ) async {
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('イベント追加'),
+        content: TextField(
+          controller: titleController,
+          decoration: const InputDecoration(hintText: 'タイトル'),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('キャンセル'),
+          ),
+          TextButton(
+            onPressed: () {
+              final title = titleController.text.trim();
+              if (title.isNotEmpty) {
+                ref
+                    .read(tableCalendarEventControllerProvider.notifier)
+                    .addEvent(
+                      dateTime: selectedDay,
+                      title: titleController.text,
+                      description: descriptionController.text,
+                    );
+              }
+              Navigator.pop(context);
+            },
+            child: const Text('追加'),
+          ),
+        ],
       ),
-    bottomNavigationBar: BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_today),
-          label: 'ホーム',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.folder),
-          label: '共有する',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: '予定一覧',
-        ),
-      ],
-    ),
     );
   }
 }
-    
