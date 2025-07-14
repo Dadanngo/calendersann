@@ -5,10 +5,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'event.dart';
 import 'table_calendar_event_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ja_JP', null);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -42,7 +45,7 @@ class TableCalendarSample extends HookConsumerWidget {
     ); // イベントのリストを取得
 
     return Scaffold(
-      appBar: AppBar(title: const Text('カレンダー')),
+      appBar: AppBar(title: const Text('カレンダーさん')),
       body: TableCalendar<Event>(
         locale: 'ja_JP',
         firstDay: DateTime.utc(2000, 1, 1),
@@ -65,6 +68,16 @@ class TableCalendarSample extends HookConsumerWidget {
           }
           return selectedEventList;
         },
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'ホーム',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.folder), label: '共有する'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: '予定一覧'),
+        ],
       ),
     );
   }

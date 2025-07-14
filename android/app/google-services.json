@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "33829087398",
+    "project_id": "callendersann",
+    "storage_bucket": "callendersann.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:33829087398:android:7da2ec3f56962179122c67",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAx0b3v6gzio4UUZipjL8MT7HdGiBfnCq8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
