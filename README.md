@@ -28,5 +28,5 @@
 
 ## 技術構成について
 開発ツール:flutter<br>
-DB:SQLlite(予定)<br>
+DB:FireBase<br>
 デプロイ先:AWS
