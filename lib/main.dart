@@ -92,10 +92,55 @@ class TableCalendarSample extends HookConsumerWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('イベント追加'),
-        content: TextField(
-          controller: titleController,
-          decoration: const InputDecoration(hintText: 'タイトル'),
+        title: const Text('予定追加'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Image.asset(
+                  'assets/images/stamp_yasumi.png',
+                  width: 60,
+                  height: 60,
+                  alignment: Alignment.topLeft,
+                ),
+                Image.asset(
+                  'assets/images/stamp_shuukinn.png',
+                  width: 60,
+                  height: 60,
+                  alignment: Alignment.topLeft,
+                ),
+                Image.asset(
+                  'assets/images/stamp_yuukyuu.png',
+                  width: 60,
+                  height: 60,
+                  alignment: Alignment.topLeft,
+                ),
+                Image.asset(
+                  'assets/images/stamp_ake.png',
+                  width: 60,
+                  height: 60,
+                  alignment: Alignment.topLeft,
+                ),
+                Image.asset(
+                  'assets/images/stamp_yakinn.png',
+                  width: 60,
+                  height: 60,
+                  alignment: Alignment.topLeft,
+                ),
+                Image.asset(
+                  'assets/images/stamp_nikinn.png',
+                  width: 60,
+                  height: 60,
+                  alignment: Alignment.topLeft,
+                ),
+              ],
+            ),
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(labelText: 'コメント'),
+            ),
+          ],
         ),
         actions: [
           TextButton(
