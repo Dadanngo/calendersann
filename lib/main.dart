@@ -60,15 +60,23 @@ class TableCalendarSample extends HookConsumerWidget {
           showAddEventDialog(context, selectedDay.value, ref);
         },
         eventLoader: (date) {
-          final selectedEventList = <Event>[];
-          for (var event in events) {
-            if (isSameDay(event.dateTime, date)) {
-              selectedEventList.add(event);
-            }
-          }
-          return selectedEventList;
+          // 指定日付のイベントを取得
+          return events.where((e) => isSameDay(e.dateTime, date)).toList();
         },
+        calendarBuilders: CalendarBuilders<Event>(
+          markerBuilder: (context, day, eventList) {
+            if (eventList.isEmpty) return const SizedBox.shrink();
+            // 最初のイベントのスタンプを表示（複数あれば1つ目）
+
+            final event = eventList.first;
+            return Align(
+              alignment: Alignment.bottomCenter,
+              child: Image.asset(event.imagePath, width: 24, height: 24),
+            );
+          },
+        ),
       ),
+
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -89,52 +97,46 @@ class TableCalendarSample extends HookConsumerWidget {
   ) async {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
-    showDialog(
+    final selectedImagePath = ValueNotifier<String>(
+      'assets/images/stamp_yasumi.png',
+    );
+    final stampImages = [
+      'assets/images/stamp_yasumi.png',
+      'assets/images/stamp_shuukinn.png',
+      'assets/images/stamp_yuukyuu.png',
+      'assets/images/stamp_ake.png',
+      'assets/images/stamp_yakinn.png',
+      'assets/images/stamp_nikinn.png',
+    ];
+    await showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('予定追加'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                Image.asset(
-                  'assets/images/stamp_yasumi.png',
-                  width: 60,
-                  height: 60,
-                  alignment: Alignment.topLeft,
-                ),
-                Image.asset(
-                  'assets/images/stamp_shuukinn.png',
-                  width: 60,
-                  height: 60,
-                  alignment: Alignment.topLeft,
-                ),
-                Image.asset(
-                  'assets/images/stamp_yuukyuu.png',
-                  width: 60,
-                  height: 60,
-                  alignment: Alignment.topLeft,
-                ),
-                Image.asset(
-                  'assets/images/stamp_ake.png',
-                  width: 60,
-                  height: 60,
-                  alignment: Alignment.topLeft,
-                ),
-                Image.asset(
-                  'assets/images/stamp_yakinn.png',
-                  width: 60,
-                  height: 60,
-                  alignment: Alignment.topLeft,
-                ),
-                Image.asset(
-                  'assets/images/stamp_nikinn.png',
-                  width: 60,
-                  height: 60,
-                  alignment: Alignment.topLeft,
-                ),
-              ],
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: stampImages.map((path) {
+                return GestureDetector(
+                  onTap: () => selectedImagePath.value = path,
+                  child: ValueListenableBuilder(
+                    valueListenable: selectedImagePath,
+                    builder: (_, value, __) => Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: value == path
+                              ? Colors.blue
+                              : Colors.transparent,
+                          width: 2,
+                        ),
+                      ),
+                      child: Image.asset(path, width: 50, height: 50),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
             TextField(
               controller: titleController,
@@ -149,17 +151,17 @@ class TableCalendarSample extends HookConsumerWidget {
           ),
           TextButton(
             onPressed: () {
-              final title = titleController.text.trim();
-              if (title.isNotEmpty) {
+              if (titleController.text.trim().isNotEmpty) {
                 ref
                     .read(tableCalendarEventControllerProvider.notifier)
                     .addEvent(
                       dateTime: selectedDay,
-                      title: titleController.text,
+                      title: titleController.text.trim(),
                       description: descriptionController.text,
+                      imagePath: selectedImagePath.value,
                     );
+                Navigator.pop(context);
               }
-              Navigator.pop(context);
             },
             child: const Text('追加'),
           ),

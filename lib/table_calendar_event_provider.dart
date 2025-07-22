@@ -6,11 +6,16 @@ part 'table_calendar_event_provider.g.dart';
 @riverpod
 class TableCalendarEventController extends _$TableCalendarEventController {
   final List<Event> sampleEvents = [
-    Event(title: 'firstEvent', dateTime: DateTime.utc(2024, 2, 15)),
+    Event(
+      title: 'firstEvent',
+      dateTime: DateTime.utc(2024, 2, 15),
+      imagePath: 'assets/images/stamp_yasumi.png',
+    ),
     Event(
       title: 'secondEvent',
       description: 'description',
       dateTime: DateTime.utc(2024, 2, 15),
+      imagePath: 'assets/images/stamp_shuukinn.png',
     ),
   ];
 
@@ -24,11 +29,13 @@ class TableCalendarEventController extends _$TableCalendarEventController {
     required DateTime dateTime,
     required String title,
     String? description,
+    required String imagePath,
   }) {
     var newData = Event(
       title: title,
       description: description,
       dateTime: dateTime,
+      imagePath: imagePath,
     );
     state.add(newData);
   }
